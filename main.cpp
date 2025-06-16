@@ -13,12 +13,12 @@ int main()
     constexpr double nu = 0.385;                       // Poisson's ratio --> for Nitinol: [0.30, 0.50]
     constexpr double G = E / (2.00 * (1.00 + nu));     // Shear modulus [GPa]
     constexpr double radius = 4.001769660928E-4;       // radius of center beam [m] -- 4.6769660928E-4;
-    constexpr double mass = 0.516E-3 * 10;                  // total mass of the sheath [kg]
+    constexpr double mass = 0.516E-3 * 10;             // total mass of the sheath [kg]
     constexpr double length = 0.05436;                 // total length of the sheath [m]
     constexpr double tendonOffset = 1.112394E-3;
 
-    static constexpr size_t numTendons = 4UL; 
-    static constexpr size_t backbonePoints = 200UL;                 
+    static constexpr size_t numTendons = 4UL;
+    static constexpr size_t backbonePoints = 200UL;
 
     blaze::StaticMatrix<double, backbonePoints, 3UL> P;
 
@@ -27,9 +27,12 @@ int main()
     blaze::StaticVector<double, 13UL> baseState;
 
     blaze::StaticVector<double, 3UL> fe = {0.0, 0.0, 0.0};
-    blaze::StaticVector<double, numTendons> tau = {0.5, 0.0, 0.0, 0.5};
-    robot.update_point_force(fe);
+    blaze::StaticVector<double, numTendons> tau = {2.5, 7.0, 8.0, 13.0};
+
+    // robot.update_point_force(fe);
+    // robot.update_initial_guess(tau);
     robot.setTendonPull(tau);
+    robot.test();
     robot.solveBVP();
     robot.getBackbone(P);
 
