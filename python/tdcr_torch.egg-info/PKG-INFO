@@ -5,6 +5,7 @@ Summary: Tendon-Driven Continuum Robot Cosserat Model (PyTorch)
 Author: Navid Feizi
 Requires-Dist: numpy
 Requires-Dist: torch
+Requires-Dist: scipy
 Dynamic: author
 Dynamic: requires-dist
 Dynamic: summary
