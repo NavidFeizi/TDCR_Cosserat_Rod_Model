@@ -8,26 +8,6 @@
 namespace py = pybind11;
 
 template <size_t N, size_t numTendons>
-/**
- * @brief Binds the TDCR class and its methods to a Python module using pybind11.
- *
- * This function exposes the TDCR class template and its relevant methods to Python,
- * allowing for interaction with the TDCR Cosserat rod model from Python code.
- *
- * Exposed methods:
- * - Constructor: Initializes a TDCR object with geometric and physical parameters.
- * - update_point_force: Updates the external point force applied to the rod.
- * - update_initial_guess: Updates the initial guess for the tendon tensions.
- * - set_tendon_pull: Sets the tendon pull values.
- * - solve_bvp: Solves the boundary value problem for the rod configuration.
- * - get_backbone: Retrieves the backbone coordinates of the rod as a 2D array.
- * - get_base_state: Returns the state vector at the base of the rod.
- * - get_tip_state: Returns the state vector at the tip of the rod.
- * - get_tip_pos: Returns the position of the rod tip.
- * - ode_function: Computes the ODE function for the rod's state and tendon tensions.
- *
- * @param m The Python module to which the TDCR class and its methods are bound.
- */
 void bind_tdcr(py::module_ &m)
 {
     using TDCRType = TDCR<N, numTendons>;

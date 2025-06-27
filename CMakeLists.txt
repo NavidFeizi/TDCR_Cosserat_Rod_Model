@@ -31,8 +31,7 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 add_subdirectory(lib_tdcr)  # Defines TDCRLib
 add_subdirectory(pybindings)  # Uses TDCRLib
 
-# Add executable
-# add_executable(tdcr_sim examples/main.cpp)
-# target_link_libraries(tdcr_sim PRIVATE TDCRLib)
+add_executable(tdcr_example examples/tdcr_example.cpp)
+target_link_libraries(tdcr_example PRIVATE TDCRLib)
 
 

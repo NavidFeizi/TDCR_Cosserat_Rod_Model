@@ -87,7 +87,7 @@ def main():
     plt.draw()
     plt.pause(0.1)
     plt.savefig(
-        os.path.join(os.path.dirname(__file__), "output", "tdcr_cpp_bind_results.png"),
+        os.path.join(os.path.dirname(__file__), "output", "tdcr_pybind_results.png"),
         format="png",
         dpi=600,
     )

@@ -9,12 +9,20 @@ bool saveMatrixToCSV(const blaze::StaticMatrix<double, N, 3UL> &mat, const std::
 
 int main()
 {
+    // constexpr double E = 15.46795366474113845825195E9; // 22.00E9 Young's modulus [GPa] 15.46795366474113845825195E9
+    // constexpr double nu = 0.385;                       // Poisson's ratio --> for Nitinol: [0.30, 0.50]
+    // constexpr double G = E / (2.00 * (1.00 + nu));     // Shear modulus [GPa]
+    // constexpr double radius = 4.001769660928E-4;       // radius of center beam [m] -- 4.6769660928E-4;
+    // constexpr double mass = 0.516E-3 * 10;             // total mass of the sheath [kg]
+    // constexpr double length = 0.05436;                 // total length of the sheath [m]
+    // constexpr double tendonOffset = 1.112394E-3;
+
     constexpr double E = 15.46795366474113845825195E9; // 22.00E9 Young's modulus [GPa] 15.46795366474113845825195E9
     constexpr double nu = 0.385;                       // Poisson's ratio --> for Nitinol: [0.30, 0.50]
     constexpr double G = E / (2.00 * (1.00 + nu));     // Shear modulus [GPa]
-    constexpr double radius = 4.001769660928E-4;       // radius of center beam [m] -- 4.6769660928E-4;
-    constexpr double mass = 0.516E-3 * 10;             // total mass of the sheath [kg]
-    constexpr double length = 0.05436;                 // total length of the sheath [m]
+    constexpr double radius = 0.0010;       // radius of center beam [m] -- 4.6769660928E-4;
+    constexpr double mass = 0.0040;             // total mass of the sheath [kg]
+    constexpr double length = 1.0;                 // total length of the sheath [m]
     constexpr double tendonOffset = 1.112394E-3;
 
     static constexpr size_t numTendons = 4UL;
@@ -27,18 +35,18 @@ int main()
     blaze::StaticVector<double, 13UL> baseState;
 
     blaze::StaticVector<double, 3UL> fe = {0.0, 0.0, 0.0};
-    blaze::StaticVector<double, numTendons> tau = {0.5, 0.0, 0.0, 0.0};
+    blaze::StaticVector<double, numTendons> tau = {0.0, 10.0, 5.0, 0.0};
 
     // robot.update_point_force(fe);
-    // robot.update_initial_guess(tau);
+    robot.update_initial_guess(tau);
     robot.setTendonPull(tau);
-    robot.test();
+    // robot.test();
     robot.solveBVP();
     robot.getBackbone(P);
 
     robot.getBaseState(baseState);
 
-    saveMatrixToCSV<backbonePoints>(P, "../output/backbone.csv");
+    saveMatrixToCSV<backbonePoints>(P, "../examples/output/backbone.csv");
 }
 
 template <size_t N>
