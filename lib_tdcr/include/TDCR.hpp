@@ -126,7 +126,7 @@ TDCR<N, numTendons>::TDCR(double E, double G, double radius, double mass, double
                                     { return (std::abs(d) < 1.00E-5) ? 0.00 : d; });
     }
 
-    std::cout << "m_r: " << m_r << std::endl;
+    // std::cout << "m_r: " << m_r << std::endl;
 
     m_f = rho * Area * gravity;
     m_l = {0.0, 0.0, 0.0};
@@ -181,7 +181,11 @@ void TDCR<N, numTendons>::solveBVP()
     for (int iter = 0; iter < maxIter; iter++)
     {
         this->residuFunc(m_initGuess, residual);
+        // std::cout << "m_initGuess: "  << blaze::trans(m_initGuess) << std::endl;
+        // std::cout << "residual: "  << blaze::trans(residual) << std::endl;
+
         double err = blaze::length(residual);
+        std::cout << "residual norm: "  << err << std::endl;
         // std::cout << "Iter " << iter << ", residual: " << err << std::endl;
 
         if (err < tol)
@@ -197,6 +201,7 @@ void TDCR<N, numTendons>::solveBVP()
         {
         case RootFindingMethod::NEWTON_RAPHSON:
             computeJacobian(m_initGuess, eps, jac);
+            // std::cout << "jac " << jac << std::endl;
             delta = blaze::inv(jac) * residual; // J * delta = residual
             m_initGuess -= delta;
             break;
@@ -208,6 +213,7 @@ void TDCR<N, numTendons>::solveBVP()
             break;
         }
     }
+    std::cout << "m_initGuess: "  << m_initGuess << std::endl;
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::micro> duration = end - start;
     // std::cout << "BVP solve time: " << duration.count() << " [us]" << std::endl;
@@ -232,6 +238,7 @@ void TDCR<N, numTendons>::computeJacobian(const blaze::StaticVector<double, 6UL>
         this->residuFunc(perturbedGuess, residual_i);
         column(residualPlus, i) = residual_i;
     }
+    // std::cout << "residualPlus " << residualPlus << std::endl;
 
     // Backward difference
     for (size_t i = 0; i < initGuess.size(); i++)
@@ -241,6 +248,7 @@ void TDCR<N, numTendons>::computeJacobian(const blaze::StaticVector<double, 6UL>
         this->residuFunc(perturbedGuess, residual_i);
         column(residualMinus, i) = residual_i;
     }
+    // std::cout << "residualMinus " << residualMinus << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::micro> duration = end - start;
@@ -264,13 +272,17 @@ void TDCR<N, numTendons>::residuFunc(const blaze::StaticVector<double, 6UL> &ini
     // blaze::StaticVector<double, 3UL> n1 = {0.0, 0.0, 0.0}; // Distal end force
     // blaze::StaticVector<double, 3UL> m1 = {0.0, 0.0, 0.0}; // Distal end torque
 
+    // std::cout << "y0: " << blaze::trans(y0) << std::endl;
+
     m_ode->solve([this](const blaze::StaticVector<double, 13UL> &y,
                         blaze::StaticVector<double, 13UL> &dyds)
                  { this->odeFunction(y, this->m_tau, dyds); },
                  y0, m_length, m_Y);
 
+
     // Evaluate residual at the tip
     blaze::StaticVector<double, 13UL> yl = column(m_Y, N - 1);
+    // std::cout << "yl: " << blaze::trans(yl) << std::endl;
     blaze::StaticVector<double, 3UL> v1 = subvector(yl, 7, 3);  // shear extension strain
     blaze::StaticVector<double, 3UL> u1 = subvector(yl, 10, 3); // bending torsion strain
 
@@ -292,6 +304,7 @@ void TDCR<N, numTendons>::residuFunc(const blaze::StaticVector<double, 6UL> &ini
 
     subvector(residual, 0, 3) = forceError;
     subvector(residual, 3, 3) = momentError;
+    // std::cout << "residual: " << blaze::trans(residual) << std::endl;
 }
 
 template <size_t N, size_t numTendons>

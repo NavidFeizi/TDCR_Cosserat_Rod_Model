@@ -96,13 +96,19 @@ void OdeSystems<D, N>::rk4_integrate(std::function<void(const double, const Stat
     State y = column(Y, 0);
     double s = s0;
 
+    // std::cout << "y: " << blaze::trans(y) << std::endl;
     for (int i = 0; i < N - 1; ++i)
     {
         ode(s, y, k1);
+        // std::cout << "k1: " << blaze::trans(k1) << std::endl;
         ode(s + half_ds, y + half_ds * k1, k2);
+        // std::cout << "k2: " << blaze::trans(k2) << std::endl;
         ode(s + half_ds, y + half_ds * k2, k3);
+        // std::cout << "k3: " << blaze::trans(k3) << std::endl;
         ode(s + ds, y + ds * k3, k4);
+        // std::cout << "k4: " << blaze::trans(k4) << std::endl;
         y += sixth_ds * (k1 + 2 * k2 + 2 * k3 + k4);
+        // std::cout << "y: " << blaze::trans(y) << std::endl;
         column(Y, i + 1) = y;
         s += ds;
     }
