@@ -4,93 +4,46 @@
 
 </div>
 
-## Introduction
-Based on Filipe's code
 
-<!-- ![Diagram](./figures/Diagram.png)
+## Overview
 
-## Table of Contents
+This project provides a comprehensive implementation of the Cosserat Rod Model for Tendon-Driven Continuum Robots (TDCRs). It includes:
 
-1. [Installation](#installation)
-2. [Configuration](#configuration)
-3. [Training the Model](#training-the-model)
-4. [Making Predictions](#making-predictions)
-5. [Project Structure](#project-structure)
-6. [References](#references)
+- **C++ TDCR Library:** A high-performance library implementing the Cosserat rod equations for TDCRs.
+- **Torch Bindings:** C++ code is exposed to Python via bindings, enabling seamless integration with PyTorch for efficient computation and GPU acceleration.
+- **Pure PyTorch Implementation:** A native PyTorch version of the Cosserat rod model, facilitating research, rapid prototyping, and differentiable programming.
 
+## Features
 
-## Installation
+- Accurate simulation of TDCR kinematics and statics using the Cosserat rod theory.
+- Modular codebase supporting both C++ and Python workflows.
+- TorchScript compatibility for deployment and optimization.
+- Example scripts and tests for both C++ and PyTorch interfaces.
 
-To set up the environment and install the required dependencies, follow these steps:
+## Getting Started
 
-1. Create a virtual environment:
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
+### Prerequisites
 
-2. Install the required packages:
-    ```bash
-    pip install -r requirements.txt
-    ```
+- C++17 compatible compiler
+- Python 3.7+
+- PyTorch
 
-## Configuration
+### Installation
 
-Configuration parameters are stored in the `config.py` file. This file includes details such as model parameters, dataset options, training options, and more.
+1. Clone the repository.
+2. Build the C++ library and Torch bindings (see `INSTALL.md` or relevant instructions).
+3. Use the PyTorch implementation directly in your Python projects.
 
+## Usage
 
-## Training the Model
-
-To train the model, run the `train.py` script. This script handles loading the dataset, initializing the model, and training it using the configurations specified in `config.py`.
-
-```bash
-python train.py
-```
-
-### Key Components in `train.py`:
-- **Data Loading**: Loads and preprocesses the dataset.
-- **Model Creation**: Initializes the model architecture.
-- **Training**: Trains the model using specified loss functions, optimizers, and schedulers.
-
-## Making Predictions
-
-After training the model, you can make predictions using the `predict.py` script. This script loads the trained model and performs predictions on new data.
-
-```bash
-python predict.py
-```
-
-### Key Components in `predict.py`:
-- **Model Loading**: Loads the trained model and its parameters.
-- **Prediction**: Uses the model to make predictions on new input data.
-
-## Project Structure
-
-- `config.py`: Contains configuration parameters for the model, training, and dataset.
-- `train.py`: Script to train the model.
-- `predict.py`: Script to make predictions using the trained model.
-- `trainer.py`: Contains the `Trainer` class which handles the training loop and model saving.
-- `models.py`: Defines the model architectures used in the project.
-- `utils.py`: Utility functions for data processing and normalization.
-- `loss_functions.py`: Custom loss functions used for training the model.
-- `predictor.py`: Defines the `Predictor` class for making predictions using the trained model.
-
-
-## Results
-
-
-![Robot state prediction](./figures/Prediction_States.png)
-
-![Lifted state prediction](./figures/Prediction_Lifted_States.png)
-
-![Eigen values](./figures/Prediction_Eigen.png)
-
-![Input matrix map](./figures/Prediction_B_Matrix.png)
-
-![Decoder map](./figures/Decoder_map.png)
-
+- Import and use the C++/Torch bindings for high-performance applications.
+- Use the pure PyTorch module for research and differentiable programming.
 
 ## References
+- Rucker, D. Caleb, and Robert J. Webster III. "Statics and dynamics of continuum robots with general tendon routing and external loading." IEEE Transactions on Robotics 27.6 (2011): 1033-1044.
+- Till, John, Vincent Aloi, and Caleb Rucker. "Real-time dynamics of soft and continuum robots based on Cosserat rod models." The International Journal of Robotics Research 38.6 (2019): 723-746.
+- Filipe Pedrosa's original codebase.
 
-- Lusch, B., Kutz, J. N., & Brunton, S. L. (2018). Deep learning for universal linear embeddings of nonlinear dynamics. *Nature communications*, 9(1), 4950. -->
+## License
 
+Based on Filipe's code
