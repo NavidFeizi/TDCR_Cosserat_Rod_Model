@@ -122,3 +122,8 @@ build/lib_tdcr/cmake_install.cmake
 build/lib_tdcr/Makefile
 build/lib_tdcr/CMakeFiles/CMakeDirectoryInformation.cmake
 build/lib_tdcr/CMakeFiles/progress.marks
+python/tdcr_torch.egg-info/dependency_links.txt
+python/tdcr_torch.egg-info/PKG-INFO
+python/tdcr_torch.egg-info/requires.txt
+python/tdcr_torch.egg-info/SOURCES.txt
+python/tdcr_torch.egg-info/top_level.txt
