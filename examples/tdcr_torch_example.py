@@ -36,7 +36,7 @@ def main():
 
     tau = np.array([30.0])
     robot.set_tendon_pull(tau)
-    Y = robot.scipy_solver()
+    Y = robot.bvp_solve_scipy()
     # Y = robot.bvp_solve()
 
     """ Plot """
