@@ -185,7 +185,7 @@ void TDCR<N, numTendons>::solveBVP()
         // std::cout << "residual: "  << blaze::trans(residual) << std::endl;
 
         double err = blaze::length(residual);
-        std::cout << "residual norm: "  << err << std::endl;
+        // std::cout << "residual norm: "  << err << std::endl;
         // std::cout << "Iter " << iter << ", residual: " << err << std::endl;
 
         if (err < tol)
@@ -213,7 +213,7 @@ void TDCR<N, numTendons>::solveBVP()
             break;
         }
     }
-    std::cout << "m_initGuess: "  << m_initGuess << std::endl;
+    // std::cout << "m_initGuess: "  << m_initGuess << std::endl;
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::micro> duration = end - start;
     // std::cout << "BVP solve time: " << duration.count() << " [us]" << std::endl;

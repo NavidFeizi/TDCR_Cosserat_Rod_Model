@@ -2,22 +2,13 @@ import os, sys
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-import matplotlib
-from matplotlib import rc
 from matplotlib.gridspec import GridSpec
 
 from tdcr_torch import TDCR_Robot
 
-# Set matplotlib configurations
-plt.rcParams["grid.color"] = "lightgray"
-plt.rcParams["grid.linewidth"] = 0.5
-matplotlib.rc("font", family="serif", size=7)
-matplotlib.rcParams["text.usetex"] = True
-rc("text", usetex=True)
+from utils import figsize, pgf_with_latex
+plt.rcParams.update(pgf_with_latex)
 
-# if torch.cuda.is_available():
-#     device = torch.device("cuda")
-# else:
 device = torch.device("cpu")
 torch.set_num_threads(12)
 
@@ -30,16 +21,27 @@ def main():
     mass = 0.0040  # mass
     length = 1.0  # length
     tendon_offset = 1.112e-3  # tendon offset
-    num_tendons = 1
+    num_tendons = 4
+    integration_steps = 100
 
-    robot = TDCR_Robot(E, G, radius, mass, length, tendon_offset, num_tendons, device, 100)
+    robot = TDCR_Robot(
+        E,
+        G,
+        radius,
+        mass,
+        length,
+        tendon_offset,
+        num_tendons,
+        device,
+        integration_steps,
+    )
 
-    tau = np.array([30.0])
+    tau = np.array([0.0, 10.0, 5.0, 0.0,])
     robot.set_tendon_pull(tau)
     Y = robot.bvp_solve_scipy()
     # Y = robot.bvp_solve()
 
-    """ Plot """
+    #### Plot the results ####
     fig = plt.figure(figsize=(8, 5))
     gs = GridSpec(2, 2, figure=fig, height_ratios=[1, 1], width_ratios=[1, 2])
     axs = []
@@ -54,13 +56,13 @@ def main():
     axs[0].grid("both")
 
     axs[1].plot(Y[2, :], Y[1, :], color="black", label="y")
-    axs[1].set_xlabel("z [m]") 
+    axs[1].set_xlabel("z [m]")
     axs[1].set_ylabel("y [m]")
     axs[1].set_title("y")
     axs[1].grid("both")
 
     axs[2].plot3D(Y[2, :], Y[0, :], Y[1, :], label="Backbone")
-    axs[2].scatter(0.0, 0.0, 0.0, color='red', label="base")
+    axs[2].scatter(0.0, 0.0, 0.0, color="red", label="base")
     axs[2].set_xlabel("Z [m]")
     axs[2].set_ylabel("X [m]")
     axs[2].set_zlabel("Y [m]")
@@ -94,13 +96,13 @@ def main():
 
     plt.tight_layout()
     plt.draw()
-    plt.show(block=True)
     plt.pause(0.1)
     plt.savefig(
-        os.path.join(os.path.dirname(__file__), "data", "tdcr_states.png"),
+        os.path.join(os.path.dirname(__file__), "output", "tdcr_torch_results.png"),
         format="png",
         dpi=600,
     )
+    plt.show(block=True)
 
 
 if __name__ == "__main__":

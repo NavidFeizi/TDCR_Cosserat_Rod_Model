@@ -59,7 +59,10 @@ class TDCR_Robot(TDCR_Physics):
         Args:
             tau (any): The tendon pull forces to be applied. Can be any type convertible to a torch tensor.
         """
-        self.tau = torch.tensor(tau, dtype=self.dtype, device=self.device)
+        tau_tensor = torch.tensor(tau, dtype=self.dtype, device=self.device)
+        if len(tau_tensor) != self.num_tendons:
+            raise ValueError(f"tau must have length {self.num_tendons}, got {len(tau_tensor)}")
+        self.tau = tau_tensor
         self.guess = self.estimate_initial_value(self.tau)
 
     def bvp_solve(self):
