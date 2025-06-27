@@ -127,3 +127,6 @@ python/tdcr_torch.egg-info/PKG-INFO
 python/tdcr_torch.egg-info/requires.txt
 python/tdcr_torch.egg-info/SOURCES.txt
 python/tdcr_torch.egg-info/top_level.txt
+python/tdcr_torch/__pycache__/__init__.cpython-312.pyc
+python/tdcr_torch/__pycache__/tdcr_physics.cpython-312.pyc
+python/tdcr_torch/__pycache__/tdcr_robot.cpython-312.pyc
