@@ -27,7 +27,7 @@ public:
     void setIntegrationMethod(const IntegrationMethod method);
 
     /**
-     * @brief Solves an ordinary differential equation (ODE) system over a specified length.
+     * @brief Solves an ODE system over a specified length.
      * @param ode      The ODE system to solve, represented as a function taking the current state and returning its derivative.
      * @param y0       The initial state vector at the start of integration.
      * @param length   The length of the interval over which to integrate the ODE.
@@ -36,8 +36,24 @@ public:
     void solve(const std::function<void(const State &, State &)> &ode, const State &y0, const double length, StateMatrix &Y);
 
 private:
+    /**
+     * @brief Integrates an ODE system using the 4th-order Runge-Kutta method.
+
+     * @param ode ode function
+     * @param Y   StateMatrix object where the integration results will be stored including the initial value .
+     * @param s0  Start point.
+     * @param sl  Final point.
+     */
     void rk4_integrate(std::function<void(const double, const State &, State &)> ode, StateMatrix &Y, double s0, double sl);
 
+    /**
+     * @brief Integrates an ODE system using the Euler method.
+
+     * @param ode ode function
+     * @param Y   StateMatrix object where the integration results will be stored including the initial value .
+     * @param s0  Start point.
+     * @param sl  Final point.
+     */
     void euler_integrate(std::function<void(const double, const State &, State &)> ode, StateMatrix &Y, double s0, double sl);
 
     IntegrationMethod m_method;

@@ -34,7 +34,7 @@ class MathOperation:
 
     def hat_sqr(self, v: torch.Tensor) -> torch.Tensor:
         """
-        Computes the square of the skew-symmetric (hat) matrix for a batch of 3D vectors.
+        Computes the square of the skew-symmetric (hat) matrix of 3D vectors.
         Args:
             v (torch.Tensor): Shape (batch, 3) or (batch, 3, 1).
         Returns:
@@ -44,7 +44,7 @@ class MathOperation:
 
     def get_SO3(self, h: torch.Tensor) -> torch.Tensor:
         """
-        Converts a batch of quaternions to their corresponding SO(3) rotation matrices.
+        Converts quaternions to their corresponding SO(3) rotation matrices.
         Args:
             h (torch.Tensor): Shape (batch, 4) or (batch, 4, 1), quaternions in the format [qw, qx, qy, qz].
         Returns:

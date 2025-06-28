@@ -67,7 +67,7 @@ class TDCR_Robot(TDCR_Physics):
 
     def bvp_solve(self):
         """
-        Solves the boundary value problem (BVP) for the Cosserat rod model using a Newton-Raphson iterative method.
+        Solves the boundary value problem (BVP) using a Newton-Raphson iterative method.
 
         This method attempts to find the optimal initial guess for the rod's internal variables such that the residuals
         at the boundary are minimized. It iteratively updates the guess using the computed Jacobian and residuals until

@@ -1,4 +1,6 @@
-project(TDCRLib LANGUAGES CXX)
+# lib_tdcr/CMakeLists.txt
+
+project(TDCRLib VERSION 1.0 LANGUAGES CXX)
 
 add_library(TDCRLib INTERFACE)
 

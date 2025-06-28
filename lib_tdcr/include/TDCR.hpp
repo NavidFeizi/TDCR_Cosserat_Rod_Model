@@ -22,26 +22,29 @@ class TDCR
 public:
     TDCR(double E, double G, double radius, double mass, double length, double tendonOffset);
 
+    /// @brief to be developed
     void update_point_force(const blaze::StaticVector<double, 3UL> &f);
 
-    // Update the initial guess for the BVP solver
+    /// @brief Rough estimate of the initial guess for the BVP solver from the tendon pulling forces.
     void update_initial_guess(const blaze::StaticVector<double, numTendons> &tau);
 
-    /// @brief Solve BVP using shooting method
+    /// @brief Solves the boundary value problem (BVP) using the shooting method.
     void solveBVP();
 
+    /// @brief Retrieves the backbone positions of the rod.
     void getBackbone(blaze::StaticMatrix<double, N, 3UL> &P);
 
+    /// @brief Retrieves the state vector at the base of the rod.
     void getBaseState(blaze::StaticVector<double, 13UL> &baseState);
 
+    /// @brief Retrieves the state vector at the tip of the rod.
     void getTipState(blaze::StaticVector<double, 13UL> &tipState);
 
+    /// @brief Retrieves the position of the rod tip.
     void getTipPos(blaze::StaticVector<double, 3UL> &tipPos);
 
+    /// @brief Sets the tendon pulling forces. Must be called before solving the BVP.
     void setTendonPull(blaze::StaticVector<double, numTendons> &tau);
-
-    void test();
-
 
     /**
      * @brief Computes the derivative of the Cosserat rod state vector for use in ODE integration.
@@ -53,20 +56,18 @@ public:
                      blaze::StaticVector<double, 13UL> &dyds) const;
 
 private:
+    ///@brief Integrates the BVP and computes the residual states error as the tip of the rod.
     void residuFunc(const blaze::StaticVector<double, 6UL> &initGuess, blaze::StaticVector<double, 6UL> &residual);
 
+    ///@brief Computes the Jacobian matrix for the BVP solver using center point finite differences.
     void computeJacobian(const blaze::StaticVector<double, 6UL> &initGuess, const double eps, blaze::StaticMatrix<double, 6UL, 6UL> &jac);
 
     blaze::StaticMatrix<double, 13UL, N> m_Y;                                      // state matrix, rows: [p, h, v, u] | cols: states at a point along the backbone
-    blaze::StaticVector<double, 3UL> s_vStar = {0.0, 0.0, 1.0};                    // shear and extension strain at the base
-    blaze::StaticVector<double, 3UL> s_uStar = {0.0, 0.0, 0.0};                    // bending and torsion strain at the base
+    blaze::StaticVector<double, 3UL> s_vStar = {0.0, 0.0, 1.0};                    // reference shear and extension strain
+    blaze::StaticVector<double, 3UL> s_uStar = {0.0, 0.0, 0.0};                    // reference bending and torsion strain
     blaze::StaticMatrix<double, 3UL, 3UL> m_Kse, m_Kbt;                            // shear and extension, bending and torsion stiffness matrices
     blaze::StaticMatrix<double, 3UL, 3UL> m_1_Kse, m_1_Kbt;                        // inverse of shear and extension, bending and torsion stiffness matrices
     blaze::StaticVector<double, 6UL> m_initGuess = {0.0, 0.0, 1.0, 0.0, 0.0, 0.0}; // initial guess for the base force and moment
-
-    // blaze::StaticVector<double, 3UL> m_nL;
-    // blaze::StaticVector<double, 3UL> m_mL;
-
     blaze::StaticVector<double, 3UL> m_f = blaze::StaticVector<double, 3UL>(0.0);  // external force
     blaze::StaticVector<double, 3UL> m_l = blaze::StaticVector<double, 3UL>(0.0);  // external moment
     blaze::StaticVector<double, 3UL> s_v1 = blaze::StaticVector<double, 3UL>(0.0); // Distal end force
@@ -120,13 +121,10 @@ TDCR<N, numTendons>::TDCR(double E, double G, double radius, double mass, double
         this->m_r[idx][0UL] = m_tendonOffset * cos(angles[idx]);
         this->m_r[idx][1UL] = m_tendonOffset * sin(angles[idx]);
         this->m_r[idx][2UL] = 0.00;
-
         // eliminates small numbers (trash) from "zeros" entries of the radial offset vector
         this->m_r[idx] = blaze::map(this->m_r[idx], [](double d)
                                     { return (std::abs(d) < 1.00E-5) ? 0.00 : d; });
     }
-
-    // std::cout << "m_r: " << m_r << std::endl;
 
     m_f = rho * Area * gravity;
     m_l = {0.0, 0.0, 0.0};
@@ -154,7 +152,6 @@ void TDCR<N, numTendons>::update_initial_guess(const blaze::StaticVector<double,
     blaze::StaticVector<double, 3UL> v = m_1_Kse * (blaze::inv(R0) * n0) + s_vStar;
     blaze::StaticVector<double, 3UL> u = m_1_Kbt * (blaze::inv(R0) * m0) + s_uStar;
     m_initGuess = {v[0], v[1], v[2], u[0], u[1], u[2]}; // Initial guess for base force and moment
-
     // std::cout << "Initial guess: " << blaze::trans(m_initGuess) << std::endl;
 }
 
@@ -181,12 +178,7 @@ void TDCR<N, numTendons>::solveBVP()
     for (int iter = 0; iter < maxIter; iter++)
     {
         this->residuFunc(m_initGuess, residual);
-        // std::cout << "m_initGuess: "  << blaze::trans(m_initGuess) << std::endl;
-        // std::cout << "residual: "  << blaze::trans(residual) << std::endl;
-
         double err = blaze::length(residual);
-        // std::cout << "residual norm: "  << err << std::endl;
-        // std::cout << "Iter " << iter << ", residual: " << err << std::endl;
 
         if (err < tol)
         {
@@ -201,7 +193,6 @@ void TDCR<N, numTendons>::solveBVP()
         {
         case RootFindingMethod::NEWTON_RAPHSON:
             computeJacobian(m_initGuess, eps, jac);
-            // std::cout << "jac " << jac << std::endl;
             delta = blaze::inv(jac) * residual; // J * delta = residual
             m_initGuess -= delta;
             break;
@@ -213,7 +204,6 @@ void TDCR<N, numTendons>::solveBVP()
             break;
         }
     }
-    // std::cout << "m_initGuess: "  << m_initGuess << std::endl;
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::micro> duration = end - start;
     // std::cout << "BVP solve time: " << duration.count() << " [us]" << std::endl;
@@ -238,8 +228,6 @@ void TDCR<N, numTendons>::computeJacobian(const blaze::StaticVector<double, 6UL>
         this->residuFunc(perturbedGuess, residual_i);
         column(residualPlus, i) = residual_i;
     }
-    // std::cout << "residualPlus " << residualPlus << std::endl;
-
     // Backward difference
     for (size_t i = 0; i < initGuess.size(); i++)
     {
@@ -248,7 +236,6 @@ void TDCR<N, numTendons>::computeJacobian(const blaze::StaticVector<double, 6UL>
         this->residuFunc(perturbedGuess, residual_i);
         column(residualMinus, i) = residual_i;
     }
-    // std::cout << "residualMinus " << residualMinus << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::micro> duration = end - start;
@@ -259,7 +246,6 @@ void TDCR<N, numTendons>::computeJacobian(const blaze::StaticVector<double, 6UL>
 template <size_t N, size_t numTendons>
 void TDCR<N, numTendons>::residuFunc(const blaze::StaticVector<double, 6UL> &initGuess, blaze::StaticVector<double, 6UL> &residual)
 {
-
     // 1. Set base BCs (e.g., p(0), R(0))
     blaze::StaticVector<double, 13UL> y0;
     blaze::StaticVector<double, 3UL> p0(0.0);                   // Base position
@@ -272,39 +258,29 @@ void TDCR<N, numTendons>::residuFunc(const blaze::StaticVector<double, 6UL> &ini
     // blaze::StaticVector<double, 3UL> n1 = {0.0, 0.0, 0.0}; // Distal end force
     // blaze::StaticVector<double, 3UL> m1 = {0.0, 0.0, 0.0}; // Distal end torque
 
-    // std::cout << "y0: " << blaze::trans(y0) << std::endl;
-
     m_ode->solve([this](const blaze::StaticVector<double, 13UL> &y,
                         blaze::StaticVector<double, 13UL> &dyds)
                  { this->odeFunction(y, this->m_tau, dyds); },
                  y0, m_length, m_Y);
 
-
     // Evaluate residual at the tip
     blaze::StaticVector<double, 13UL> yl = column(m_Y, N - 1);
-    // std::cout << "yl: " << blaze::trans(yl) << std::endl;
-    blaze::StaticVector<double, 3UL> v1 = subvector(yl, 7, 3);  // shear extension strain
-    blaze::StaticVector<double, 3UL> u1 = subvector(yl, 10, 3); // bending torsion strain
-
+    blaze::StaticVector<double, 3UL> v1 = subvector(yl, 7, 3);    // shear extension strain
+    blaze::StaticVector<double, 3UL> u1 = subvector(yl, 10, 3);   // bending torsion strain
     blaze::StaticVector<double, 3UL> nb = m_Kse * (v1 - s_vStar); // backbone internal force in body frame
     blaze::StaticVector<double, 3UL> mb = m_Kbt * (u1 - s_uStar); // backbone internal moment in body frame
-
     blaze::StaticVector<double, 3UL> forceError(-nb);
     blaze::StaticVector<double, 3UL> momentError(-mb);
     blaze::StaticVector<double, 3UL> pbi_s, fb_i;
-
     for (size_t idx = 0UL; idx < numTendons; ++idx)
     {
         pbi_s = MathOp::hat(u1) * m_r[idx] + v1;
         fb_i = -m_tau[idx] * blaze::normalize(pbi_s);
-        // std::cout << "fb_i: " << blaze::trans(fb_i) << std::endl;
         forceError += fb_i;
         momentError += blaze::cross(m_r[idx], fb_i);
     }
-
     subvector(residual, 0, 3) = forceError;
     subvector(residual, 3, 3) = momentError;
-    // std::cout << "residual: " << blaze::trans(residual) << std::endl;
 }
 
 template <size_t N, size_t numTendons>
@@ -318,9 +294,6 @@ void TDCR<N, numTendons>::odeFunction(const blaze::StaticVector<double, 13UL> &y
     blaze::StaticVector<double, 3UL> u = subvector(y, 10, 3);
     blaze::StaticMatrix<double, 3, 3> R = MathOp::getSO3(h);
     blaze::StaticMatrix<double, 3, 3> uh = MathOp::hat(u);
-
-    // std::cout << "R: " << R << std::endl;
-    // std::cout << "uh: " << uh << std::endl;
 
     decltype(p) dpds;
     decltype(h) dhds;
@@ -337,46 +310,30 @@ void TDCR<N, numTendons>::odeFunction(const blaze::StaticVector<double, 13UL> &y
     for (size_t idx = 0; idx < numTendons; idx++)
     {
         pbi_s = uh * m_r[idx] + v;
-        // std::cout << "pbi_s: " << pbi_s << std::endl;
         pbi_sNorm = blaze::norm(pbi_s);
-        // std::cout << "pbi_sNorm: " << pbi_sNorm << std::endl;
         Ai = -(tau[idx] / pow(pbi_sNorm, 3)) * MathOp::hatSqr(pbi_s);
-        // std::cout << "Ai: " << Ai << std::endl;
         Bi = MathOp::hat(m_r[idx]) * Ai;
-        // std::cout << "Bi: " << Bi << std::endl;
         A += Ai;
-        // std::cout << "A: " << A << std::endl;
         B += Bi;
-        // std::cout << "B: " << B << std::endl;
         G -= Ai * MathOp::hat(m_r[idx]);
-        // std::cout << "G: " << G << std::endl;
         H -= Bi * MathOp::hat(m_r[idx]);
-        // std::cout << "H: " << H << std::endl;
         ai = Ai * uh * (pbi_s);
-        // std::cout << "ai: " << ai << std::endl;
         bi = MathOp::hat(m_r[idx]) * ai;
-        // std::cout << "bi: " << bi << std::endl;
         a += ai;
-        // std::cout << "a: " << a << std::endl;
         b += bi;
-        // std::cout << "b: " << b << std::endl;
     }
 
     blaze::StaticVector<double, 3UL> nb = m_Kse * (v - s_vStar); // internal force in body frame
-    // std::cout << "nb: " << blaze::trans(nb) << std::endl;
     blaze::StaticVector<double, 3UL> mb = m_Kbt * (u - s_uStar); // internal moment in body frame
-    // std::cout << "mb: " << blaze::trans(mb) << std::endl;
 
     subvector(rhs, 0, 3) = 0.0 - uh * nb - blaze::trans(R) * m_f - a;
     subvector(rhs, 3, 3) = 0.0 - uh * mb - MathOp::hat(v) * nb - blaze::trans(R) * m_l - b;
-    // std::cout << "rhs: " << blaze::trans(rhs) << std::endl;
 
     // assembling the phi matrix
     submatrix(phi, 0UL, 0UL, 3UL, 3UL) = m_Kse + A;
     submatrix(phi, 0UL, 3UL, 3UL, 3UL) = G;
     submatrix(phi, 3UL, 0UL, 3UL, 3UL) = B;
     submatrix(phi, 3UL, 3UL, 3UL, 3UL) = m_Kbt + H;
-    // std::cout << "phi: " << phi << std::endl;
 
     dpds = R * v;
     dhds = MathOp::quaternionDiff(u, h);
@@ -384,14 +341,12 @@ void TDCR<N, numTendons>::odeFunction(const blaze::StaticVector<double, 13UL> &y
     // duds = 0.0 - m_1_Kbt * (uh * m_Kbt * (u - s_uStar) + MathOp::hat(v) * m_Kse * (v - s_vStar) + blaze::trans(R) * m_l);
 
     lhs = blaze::inv(phi) * rhs;
-    // std::cout << "lhs: " << lhs << std::endl;
 
     subvector(dyds, 0, 3) = dpds;
     subvector(dyds, 3, 4) = dhds;
     // subvector(dyds, 7, 3) = dvds;
     // subvector(dyds, 10, 3) = duds;
     subvector(dyds, 7, 6) = lhs;
-    // std::cout << "dyds: " << dyds << std::endl;
 }
 
 template <size_t N, size_t numTendons>
@@ -411,9 +366,7 @@ void TDCR<N, numTendons>::getTipPos(blaze::StaticVector<double, 3UL> &tipPos)
 template <size_t N, size_t numTendons>
 void TDCR<N, numTendons>::getBaseState(blaze::StaticVector<double, 13UL> &baseState)
 {
-    // Get the last column of m_Y which contains the tip position
     baseState = subvector(column(m_Y, 0UL), 0UL, 13UL);
-    // std::cout << "baseState: " << blaze::trans(baseState) << std::endl;
 }
 
 template <size_t N, size_t numTendons>
@@ -421,38 +374,10 @@ void TDCR<N, numTendons>::getTipState(blaze::StaticVector<double, 13UL> &tipStat
 {
     // Get the last column of m_Y which contains the tip position
     tipState = subvector(column(m_Y, N - 1), 0UL, 13UL);
-    // std::cout << "baseState: " << blaze::trans(tipState) << std::endl;
 }
 
 template <size_t N, size_t numTendons>
 void TDCR<N, numTendons>::setTendonPull(blaze::StaticVector<double, numTendons> &tau)
 {
-    // Get the last column of m_Y which contains the tip position
     m_tau = tau;
-}
-
-
-template <size_t N, size_t numTendons>
-void TDCR<N, numTendons>::test()
-{
-
-    // 1. Set base BCs (e.g., p(0), R(0))
-    blaze::StaticVector<double, 13UL> y0, dyds;
-    blaze::StaticVector<double, 3UL> p0(0.0);                   // Base position
-    blaze::StaticVector<double, 4UL> h0 = {1.0, 0.0, 0.0, 0.0}; // Base orientation
-    blaze::StaticVector<double, 3UL> v0 = {0.0, 0.0, 1.0}; // Base orientation
-    blaze::StaticVector<double, 3UL> u0 = {0.0, 0.0, 0.0}; // Base orientation
-    subvector(y0, 0, 3) = p0;
-    subvector(y0, 3, 4) = h0;
-    subvector(y0, 7, 3) = v0; 
-    subvector(y0, 10, 3) = u0; 
-
-    // 2. Set desired tip BCs (usually free, so zero force/moment at tip)
-    // blaze::StaticVector<double, 3UL> n1 = {0.0, 0.0, 0.0}; // Distal end force
-    // blaze::StaticVector<double, 3UL> m1 = {0.0, 0.0, 0.0}; // Distal end torque
-
-    std::cout << "y0: " << blaze::trans(y0) << std::endl;
-    std::cout << "m_tau: " << blaze::trans(this->m_tau) << std::endl;
-
-    this->odeFunction(y0, this->m_tau, dyds); 
 }

@@ -6,7 +6,7 @@
 
 namespace MathOp
 {
-
+    // function that computes the skew-symmetric matrix (hat operator) for SO(3) 
     inline blaze::StaticMatrix<double, 3UL, 3UL> hat(const blaze::StaticVector<double, 3UL> &R3)
     {
         blaze::StaticMatrix<double, 3UL, 3UL> SO3(0.0);
@@ -19,6 +19,8 @@ namespace MathOp
         return SO3;
     }
 
+    // function that computes the skew-symmetric matrix (hat operator) for SE(3)
+    // R6 is a 6D vector with the first 3 elements being the translation and the last 3 elements being the rotation
     inline blaze::StaticMatrix<double, 4UL, 4UL> hat(const blaze::StaticVector<double, 6UL> &R6)
     {
         blaze::StaticMatrix<double, 3UL, 3UL> SE3(0.0);
@@ -36,14 +38,14 @@ namespace MathOp
     }
 
     // function that computes the squared hat operator
-	inline blaze::StaticMatrix<double, 3UL, 3UL> hatSqr(const blaze::StaticVector<double, 3UL> &v)
-	{
-		blaze::StaticMatrix<double, 3UL, 3UL> hatSqr = {{-v[2UL] * v[2UL] - v[1UL] * v[1UL], v[1UL] * v[0UL], v[0UL] * v[2UL]},
-														{v[0UL] * v[1UL], -v[2UL] * v[2UL] - v[0UL] * v[0UL], v[2UL] * v[1UL]},
-														{v[0UL] * v[2UL], v[1UL] * v[2UL], -v[1UL] * v[1UL] - v[0UL] * v[0UL]}};
+    inline blaze::StaticMatrix<double, 3UL, 3UL> hatSqr(const blaze::StaticVector<double, 3UL> &v)
+    {
+        blaze::StaticMatrix<double, 3UL, 3UL> hatSqr = {{-v[2UL] * v[2UL] - v[1UL] * v[1UL], v[1UL] * v[0UL], v[0UL] * v[2UL]},
+                                                        {v[0UL] * v[1UL], -v[2UL] * v[2UL] - v[0UL] * v[0UL], v[2UL] * v[1UL]},
+                                                        {v[0UL] * v[2UL], v[1UL] * v[2UL], -v[1UL] * v[1UL] - v[0UL] * v[0UL]}};
 
-		return hatSqr;
-	}
+        return hatSqr;
+    }
 
     // function that computes the differential quaternion evolution
     inline blaze::StaticVector<double, 4UL> quaternionDiff(const blaze::StaticVector<double, 3UL> &u, const blaze::StaticVector<double, 4UL> &h)
@@ -58,6 +60,7 @@ namespace MathOp
         return hs;
     }
 
+    // function that computes the quaternion hat operator
     inline blaze::StaticMatrix<double, 4UL, 4UL> quaternionHat(const blaze::StaticVector<double, 3UL> u)
     {
         blaze::StaticMatrix<double, 4UL, 4UL> SO3;
@@ -83,6 +86,7 @@ namespace MathOp
         return SO3;
     }
 
+    // function that converts a quaternion to its corresponding SO(3) rotation matrix
     inline blaze::StaticMatrix<double, 3UL, 3UL> getSO3(const blaze::StaticVector<double, 4UL> &h)
     {
         // Extract components
