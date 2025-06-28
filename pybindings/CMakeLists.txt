@@ -1,5 +1,4 @@
-# bindings/CMakeLists.txt
-
+# pybindings/CMakeLists.txt
 
 find_package(pybind11 REQUIRED)
 if(pybind11_FOUND)
