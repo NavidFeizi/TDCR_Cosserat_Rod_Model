@@ -65,7 +65,7 @@ class TDCR_Robot(TDCR_Physics):
         self.tau = tau_tensor
         self.guess = self.estimate_initial_value(self.tau)
 
-    def bvp_solve(self):
+    def bvp_solve_shooting(self):
         """
         Solves the boundary value problem (BVP) using a Newton-Raphson iterative method.
 
@@ -312,3 +312,4 @@ class TDCR_Robot(TDCR_Physics):
 
         return y_uniform
         # return sol.y[:]
+

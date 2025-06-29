@@ -205,7 +205,7 @@ class TDCR_Physics(MathOperation):
 
         # Compute tendon routing positions around the backbone cross-section
         angles = torch.tensor(
-            [2 * math.pi * idx / num_tendons for idx in range(num_tendons)],
+            [1 * math.pi * idx / num_tendons for idx in range(num_tendons)],
             device=self.device,
             dtype=self.dtype,
         )
@@ -408,12 +408,3 @@ class TDCR_Physics(MathOperation):
         u0 = torch.inverse(self.Kbt) @ (torch.inverse(R0) @ m0) + self.u_star
 
         return torch.cat([p0, h0, v0.squeeze(1), u0.squeeze(1)], dim=0)
-
-    def reduced_ode_function(self, y_reduced: torch.Tensor, tau: torch.Tensor) -> torch.Tensor:
-        batch_size = y_reduced.shape[0]
-        y = torch.zeros(batch_size, 13, device=y_reduced.device, dtype=y_reduced.dtype)
-        y[:, 0:3] = y_reduced[:, 0:3]
-        y[:, 3:7] = y_reduced[:, 3:7]
-        y[:, 7:10] = torch.tensor([0.0, 0.0, 1.0], device=y_reduced.device, dtype=y_reduced.dtype).unsqueeze(0).expand(batch_size, 3)
-        y[:, 10:13] = y_reduced[:, 7:10]
-        return self.ode_function(y.unsqueeze(0), tau).squeeze(0)

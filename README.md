@@ -49,6 +49,12 @@ This builds `tdcr_physics.so`, which can be imported into Python.
 
 ### Install PyTorch Version
 
+Dependencies:
+ - **PyTorch**: ```pip install --upgrade torch```
+ - **numpy**: ```pip install numpy```
+ - **matplotlib**: ```pip install matplotlib```
+
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate

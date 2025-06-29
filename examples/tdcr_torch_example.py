@@ -21,7 +21,7 @@ def main():
     mass = 0.0040  # mass
     length = 1.0  # length
     tendon_offset = 1.112e-3  # tendon offset
-    num_tendons = 4
+    num_tendons = 2
     integration_steps = 100
 
     robot = TDCR_Robot(
@@ -36,10 +36,10 @@ def main():
         integration_steps,
     )
 
-    tau = np.array([0.0, 10.0, 5.0, 0.0,])
+    tau = np.array([10.0, 8.0])
     robot.set_tendon_pull(tau)
     Y = robot.bvp_solve_scipy()
-    # Y = robot.bvp_solve()
+    # Y = robot.bvp_solve_shooting()
 
     #### Plot the results ####
     fig = plt.figure(figsize=(8, 5))
